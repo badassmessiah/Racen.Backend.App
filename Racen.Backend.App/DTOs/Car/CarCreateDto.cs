@@ -7,7 +7,7 @@ namespace Racen.Backend.App.DTOs.Car
     {
         [Required]
         [StringLength(100, MinimumLength = 1, ErrorMessage = "Name must be between 1 and 100 characters.")]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         [Range(0, 500, ErrorMessage = "Speed must be between 0 and 500.")]
         public int Speed { get; set; }
@@ -34,7 +34,7 @@ namespace Racen.Backend.App.DTOs.Car
         public int Level { get; set; }
 
         [Required]
-        public string OwnerId { get; set; }
+        public string OwnerId { get; set; } = string.Empty;
 
         [Required]
         public CarRarity Rarity { get; set; }

@@ -158,17 +158,17 @@ namespace Racen.Backend.App.Services
         {
             var principal = GetPrincipalFromExpiredToken(model.Token);
             if (principal == null)
-                return (null, null);
+                return (null!, null!); // Fix: Use null-forgiving operator
 
             var userId = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             if (userId == null)
-                return (null, null);
+                return (null!, null!); // Fix: Use null-forgiving operator
 
             var storedRefreshToken = await _context.RefreshTokens
                 .FirstOrDefaultAsync(rt => rt.Token == model.RefreshToken && rt.UserId == userId && !rt.IsRevoked);
 
             if (storedRefreshToken == null || storedRefreshToken.ExpiryDate <= DateTime.Now)
-                return (null, null);
+                return (null!, null!); // Fix: Use null-forgiving operator
 
             // Revoke the old refresh token
             storedRefreshToken.IsRevoked = true;
@@ -177,6 +177,9 @@ namespace Racen.Backend.App.Services
 
             // Generate new tokens
             var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return (null!, null!); // Fix: Use null-forgiving operator
+
             var (newToken, newRefreshToken) = await GenerateTokensAsync(user);
 
             return (newToken, newRefreshToken);
@@ -189,7 +192,7 @@ namespace Racen.Backend.App.Services
                 ValidateAudience = false,
                 ValidateIssuer = false,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Key"])),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Key"] ?? string.Empty)), // Fix: Provide default value
                 ValidateLifetime = false // We want to get claims from expired token
             };
 

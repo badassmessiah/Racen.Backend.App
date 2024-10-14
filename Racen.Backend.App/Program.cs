@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Racen.Backend.App.Data;
 using Racen.Backend.App.Models.User;
 using Microsoft.OpenApi.Models;
+using Racen.Backend.App.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

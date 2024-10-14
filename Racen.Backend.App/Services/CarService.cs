@@ -85,13 +85,13 @@ namespace Racen.Backend.App.Services
             var random = new Random();
             var stats = new List<Action<int>>
             {
-                bonus => car.Speed += bonus,
-                bonus => car.Acceleration += bonus,
-                bonus => car.Aerodynamics += bonus,
-                bonus => car.TyreGrip += bonus,
-                bonus => car.Weight -= bonus, // Assuming lower weight is better
-                bonus => car.Power += bonus,
-                bonus => car.FuelConsumption -= bonus // Assuming lower consumption is better
+                bonus => car.Speed = Math.Max(1, car.Speed + bonus),
+                bonus => car.Acceleration = Math.Max(1, car.Acceleration + bonus),
+                bonus => car.Aerodynamics = Math.Max(1, car.Aerodynamics + bonus),
+                bonus => car.TyreGrip = Math.Max(1, car.TyreGrip + bonus),
+                bonus => car.Weight = Math.Max(500, car.Weight - bonus), // Assuming 500 is the minimum weight
+                bonus => car.Power = Math.Max(1, car.Power + bonus),
+                bonus => car.FuelConsumption = Math.Max(1, car.FuelConsumption - bonus) // Assuming 1 is the minimum fuel consumption
             };
 
             if (car.Rarity > CarRarity.Common)

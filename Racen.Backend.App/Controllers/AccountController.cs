@@ -4,12 +4,15 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore; // Add this using directive
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Racen.Backend.App.Data;
 using Racen.Backend.App.Models;
 using Racen.Backend.App.Models.User;
 using Racen.Backend.App.DTOs;
+using Racen.Backend.App.Services;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Racen.Backend.App.Controllers
 {
@@ -17,43 +20,23 @@ namespace Racen.Backend.App.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
+        private readonly AccountService _accountService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly IConfiguration _configuration;
-        private readonly AppDbContext _context;
 
-        public AccountController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, AppDbContext context)
+        public AccountController(AccountService accountService, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
+            _accountService = accountService;
             _userManager = userManager;
             _roleManager = roleManager;
-            _configuration = configuration;
-            _context = context;
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] Register model)
         {
-            var userExists = await _userManager.FindByNameAsync(model.Username);
-            if (userExists != null)
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "User already exists!" });
-
-            ApplicationUser user = new ApplicationUser()
-            {
-                Email = model.Email,
-                SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = model.Username
-            };
-            var result = await _userManager.CreateAsync(user, model.Password);
+            var result = await _accountService.RegisterUserAsync(model);
             if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message =  "User creation failed! Please check user details and try again." });
-
-
-
-            // Assign "User" role to the newly registered user
-            if (!await _roleManager.RoleExistsAsync("user"))
-                await _roleManager.CreateAsync(new IdentityRole("user"));
-
-            await _userManager.AddToRoleAsync(user, "user");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = result.Errors.FirstOrDefault()?.Description });
 
             return Ok(new { Status = "Success", Message = "User created successfully!" });
         }
@@ -61,94 +44,33 @@ namespace Racen.Backend.App.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] Login model)
         {
+            var result = await _accountService.LoginAsync(model);
+            if (!result.Succeeded)
+                return Unauthorized(new { Status = "Error", Message = result.Errors.FirstOrDefault()?.Description });
+
             var user = await _userManager.FindByNameAsync(model.Username);
-            if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
+            var (token, refreshToken) = await _accountService.GenerateTokensAsync(user);
+
+            return Ok(new
             {
-                var UserRoles = await _userManager.GetRolesAsync(user);
-
-                var authClaims = new List<Claim>
-                {
-                    new Claim(JwtRegisteredClaimNames.Sub, user.UserName ?? string.Empty),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                };
-
-                authClaims.AddRange(UserRoles.Select(role => new Claim(ClaimTypes.Role, role)));
-
-                var token = new JwtSecurityToken(
-                    issuer: _configuration["JWT:Issuer"],
-                    expires: DateTime.Now.AddMinutes(double.Parse(_configuration["JWT:ExpireMinutes"] ?? "60")),
-                    claims: authClaims,
-                    signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Key"] ?? string.Empty)),
-                    SecurityAlgorithms.HmacSha256)
-                );
-
-                var refreshToken = GenerateRefreshToken();
-                var refreshTokenEntity = new RefreshToken
-                {
-                    Token = refreshToken,
-                    UserId = user.Id,
-                    ExpiryDate = DateTime.Now.AddDays(7) // Set refresh token expiry
-                };
-
-                _context.RefreshTokens.Add(refreshTokenEntity);
-                await _context.SaveChangesAsync();
-
-                return Ok(new
-                {
-                    Token = new JwtSecurityTokenHandler().WriteToken(token),
-                    RefreshToken = refreshToken
-                });
-            }
-            return Unauthorized();
-        }
-
-        private string GenerateRefreshToken()
-        {
-            var randomNumber = new byte[32];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(randomNumber);
-                return Convert.ToBase64String(randomNumber);
-            }
+                token = new JwtSecurityTokenHandler().WriteToken(token),
+                expiration = token.ValidTo,
+                refreshToken
+            });
         }
 
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken([FromBody] TokenRequest model)
         {
-            var refreshToken = await _context.RefreshTokens.FirstOrDefaultAsync(rt => rt.Token == model.RefreshToken);
-
-            if (refreshToken == null || refreshToken.ExpiryDate <= DateTime.Now || refreshToken.IsRevoked)
-            {
-                return Unauthorized(new { message = "Invalid or expired refresh token" });
-            }
-
-            var user = await _userManager.FindByIdAsync(refreshToken.UserId);
-            if (user == null)
-            {
-                return Unauthorized(new { message = "Invalid refresh token" });
-            }
-
-            var UserRoles = await _userManager.GetRolesAsync(user);
-
-            var authClaims = new List<Claim>
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, user.UserName ?? string.Empty),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            };
-
-            authClaims.AddRange(UserRoles.Select(role => new Claim(ClaimTypes.Role, role)));
-
-            var token = new JwtSecurityToken(
-                issuer: _configuration["JWT:Issuer"],
-                expires: DateTime.Now.AddMinutes(double.Parse(_configuration["JWT:ExpireMinutes"] ?? "60")),
-                claims: authClaims,
-                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Key"] ?? string.Empty)),
-                SecurityAlgorithms.HmacSha256)
-            );
+            var (newToken, newRefreshToken) = await _accountService.RefreshTokenAsync(model);
+            if (newToken == null || newRefreshToken == null)
+                return Unauthorized(new { message = "Invalid token or refresh token" });
 
             return Ok(new
             {
-                Token = new JwtSecurityTokenHandler().WriteToken(token)
+                token = new JwtSecurityTokenHandler().WriteToken(newToken),
+                expiration = newToken.ValidTo,
+                refreshToken = newRefreshToken
             });
         }
 

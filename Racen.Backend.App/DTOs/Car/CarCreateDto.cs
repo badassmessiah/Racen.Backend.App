@@ -1,3 +1,5 @@
+using Racen.Backend.App.Models.Car;
+
 namespace Racen.Backend.App.DTOs.Car
 {
     public class CarCreateDto
@@ -12,5 +14,6 @@ namespace Racen.Backend.App.DTOs.Car
         public int FuelConsumption { get; set; }
         public int Level { get; set; }
         public required string OwnerId { get; set; }
+        public CarRarity Rarity { get; set; }
     }
 }

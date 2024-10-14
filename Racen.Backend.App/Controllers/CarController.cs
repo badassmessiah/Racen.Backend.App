@@ -77,7 +77,8 @@ namespace Racen.Backend.App.Controllers
                 Power = carDto.Power,
                 FuelConsumption = carDto.FuelConsumption,
                 Level = carDto.Level,
-                OwnerId = carDto.OwnerId
+                OwnerId = carDto.OwnerId,
+                Rarity = carDto.Rarity
             };
             var createdCar = await _carService.CreateCarAsync(car);
             var createdCarDto = new CarReadDto
@@ -92,7 +93,8 @@ namespace Racen.Backend.App.Controllers
                 Power = createdCar.Power,
                 FuelConsumption = createdCar.FuelConsumption,
                 Level = createdCar.Level,
-                OwnerId = createdCar.OwnerId
+                OwnerId = createdCar.OwnerId,
+                Rarity = createdCar.Rarity
             };
             return CreatedAtAction(nameof(GetCarById), new { id = createdCarDto.Id }, createdCarDto);
         }
@@ -143,6 +145,20 @@ namespace Racen.Backend.App.Controllers
         {
             await _carService.DeleteCarAsync(id);
             return NoContent();
+        }
+
+        [HttpPost("{carId}/accessories")]
+        public async Task<IActionResult> AddAccessoryToCar(string carId, [FromBody] AddAccessoryDto addAccessoryDto)
+        {
+            try
+            {
+                await _carService.AddAccessoryToCarAsync(carId, addAccessoryDto.UserId, addAccessoryDto.AccessoryId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

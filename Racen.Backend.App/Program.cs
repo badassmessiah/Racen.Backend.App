@@ -84,6 +84,8 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("UserPolicy", policy => policy.RequireRole("user"));
 });
 
+builder.Services.AddScoped<CarService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

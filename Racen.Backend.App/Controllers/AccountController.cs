@@ -23,12 +23,14 @@ namespace Racen.Backend.App.Controllers
         private readonly AccountService _accountService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ILogger<AccountController> _logger;
 
-        public AccountController(AccountService accountService, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public AccountController(AccountService accountService, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ILogger<AccountController> logger)
         {
             _accountService = accountService;
             _userManager = userManager;
             _roleManager = roleManager;
+            _logger = logger;
         }
 
         [HttpPost("register")]
@@ -65,10 +67,17 @@ namespace Racen.Backend.App.Controllers
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken([FromBody] TokenRequest model)
         {
-            var (newToken, newRefreshToken) = await _accountService.RefreshTokenAsync(model);
-            if (newToken == null || newRefreshToken == null)
-                return Unauthorized(new { message = "Invalid token or refresh token" });
+            _logger.LogInformation("Received refresh token request");
 
+            var (newToken, newRefreshToken) = await _accountService.RefreshTokenAsync(model);
+
+            if (newToken == null || newRefreshToken == null)
+            {
+                _logger.LogWarning("Invalid token or refresh token");
+                return Unauthorized(new { message = "Invalid token or refresh token" });
+            }
+
+            _logger.LogInformation("Refresh token process completed successfully");
             return Ok(new
             {
                 token = new JwtSecurityTokenHandler().WriteToken(newToken),

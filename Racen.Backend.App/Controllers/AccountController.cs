@@ -45,13 +45,15 @@ namespace Racen.Backend.App.Controllers
             };
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "User creation failed! Please check user details and try again." });
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message =  "User creation failed! Please check user details and try again." });
+
+
 
             // Assign "User" role to the newly registered user
-            if (!await _roleManager.RoleExistsAsync("User"))
-                await _roleManager.CreateAsync(new IdentityRole("User"));
+            if (!await _roleManager.RoleExistsAsync("user"))
+                await _roleManager.CreateAsync(new IdentityRole("user"));
 
-            await _userManager.AddToRoleAsync(user, "User");
+            await _userManager.AddToRoleAsync(user, "user");
 
             return Ok(new { Status = "Success", Message = "User created successfully!" });
         }

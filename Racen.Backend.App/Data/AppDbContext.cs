@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Racen.Backend.App.Models;
+using Racen.Backend.App.Models.Car;
 using Racen.Backend.App.Models.User;
 
 namespace Racen.Backend.App.Data
@@ -10,11 +11,11 @@ namespace Racen.Backend.App.Data
     {
         public AppDbContext(DbContextOptions options) : base(options)
         {
-            
+
         }
 
         public DbSet<RefreshToken> RefreshTokens { get; set; }
-
+        public DbSet<CarModel> Cars { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

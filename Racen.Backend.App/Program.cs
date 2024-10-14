@@ -86,6 +86,7 @@ builder.Services.AddAuthorization(options =>
 });
 
 builder.Services.AddScoped<CarService>();
+builder.Services.AddScoped<AccountService>();
 
 var app = builder.Build();
 

@@ -79,6 +79,7 @@ namespace Racen.Backend.App.Services
             _context.UserAccessories.Remove(userAccessory);
             await _context.SaveChangesAsync();
         }
+
         private void ApplyRarityBonus(CarModel car)
         {
             var random = new Random();
@@ -132,7 +133,7 @@ namespace Racen.Backend.App.Services
                     car.Aerodynamics += (int)(car.Aerodynamics * 0.05);
                     car.Weight -= (int)(car.Weight * 0.05);
                     break;
-                    // Add other cases for different rarities
+                // Add other cases for different rarities
             }
         }
 
@@ -147,7 +148,7 @@ namespace Racen.Backend.App.Services
                     car.Power += (int)(car.Power * 0.05);
                     car.Acceleration += (int)(car.Acceleration * 0.05);
                     break;
-                    // Add other cases for different rarities
+                // Add other cases for different rarities
             }
         }
 
@@ -162,7 +163,7 @@ namespace Racen.Backend.App.Services
                     car.Aerodynamics += (int)(car.Aerodynamics * 0.05);
                     car.Speed += (int)(car.Speed * 0.05);
                     break;
-                    // Add other cases for different rarities
+                // Add other cases for different rarities
             }
         }
     }

@@ -63,7 +63,7 @@ namespace Racen.Backend.App.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateCar(CarCreateDto carDto)
+        public async Task<IActionResult> CreateCar([FromBody] CarCreateDto carDto)
         {
             var car = new CarModel
             {

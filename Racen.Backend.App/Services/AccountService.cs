@@ -103,7 +103,6 @@ namespace Racen.Backend.App.Services
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id ?? string.Empty),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.NameIdentifier, user.Id) // Ensure user ID is added correctly
             };
 
             authClaims.AddRange(userRoles.Select(role => new Claim(ClaimTypes.Role, role)));

@@ -5,6 +5,7 @@ using Racen.Backend.App.Models;
 using Racen.Backend.App.Models.Car;
 using Racen.Backend.App.Models.User;
 using Racen.Backend.App.Models.Accessories;
+using Racen.Backend.App.Models.MotorcycleRelated;
 
 namespace Racen.Backend.App.Data
 {
@@ -18,6 +19,9 @@ namespace Racen.Backend.App.Data
         public DbSet<CarModel> Cars { get; set; }
         public DbSet<AccessoryModel> Accessories { get; set; }
         public DbSet<UserAccessoryModel> UserAccessories { get; set; }
+
+        public DbSet<Motorcycle> Motorcycles { get; set; }
+        public DbSet<Items> Items { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

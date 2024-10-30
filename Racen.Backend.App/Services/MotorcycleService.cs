@@ -73,5 +73,78 @@ namespace Racen.Backend.App.Services
             await _context.SaveChangesAsync();
         }
 
+        public async Task AssignItemToMotorcycleAsync(string motorcycleId, string itemId)
+        {
+            // Fetch the motorcycle along with its items
+            var motorcycle = await _context.Motorcycles
+                .Include(m => m.Items)
+                .FirstOrDefaultAsync(m => m.Id == motorcycleId && m.Enabled);
+
+            if (motorcycle == null)
+            {
+                throw new KeyNotFoundException($"Motorcycle with ID {motorcycleId} not found.");
+            }
+
+            // Check if the motorcycle already has 6 items
+            if (motorcycle.Items != null && motorcycle.Items.Count >= 6)
+            {
+                throw new InvalidOperationException("Motorcycle already has the maximum number of items.");
+            }
+
+            // Fetch the item
+            var item = await _context.Items.FirstOrDefaultAsync(i => i.Id == itemId && i.Enabled);
+
+            if (item == null)
+            {
+                throw new KeyNotFoundException($"Item with ID {itemId} not found.");
+            }
+
+            // Check if the item is already assigned to a motorcycle
+            if (!string.IsNullOrEmpty(item.MotorcycleId))
+            {
+                throw new InvalidOperationException("Item is already assigned to a motorcycle.");
+            }
+
+            // Assign the item to the motorcycle
+            item.MotorcycleId = motorcycle.Id;
+            motorcycle.Items ??= new List<Items>();
+            motorcycle.Items.Add(item);
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task RemoveItemFromMotorcycleAsync(string motorcycleId, string itemId)
+        {
+            // Fetch the motorcycle including its items
+            var motorcycle = await _context.Motorcycles
+                .Include(m => m.Items)
+                .FirstOrDefaultAsync(m => m.Id == motorcycleId && m.Enabled);
+
+            if (motorcycle == null)
+            {
+                throw new KeyNotFoundException($"Motorcycle with ID {motorcycleId} not found.");
+            }
+
+            // Fetch the item
+            var item = await _context.Items.FirstOrDefaultAsync(i => i.Id == itemId && i.Enabled);
+
+            if (item == null)
+            {
+                throw new KeyNotFoundException($"Item with ID {itemId} not found.");
+            }
+
+            // Check if the item is assigned to the motorcycle
+            if (item.MotorcycleId != motorcycleId)
+            {
+                throw new InvalidOperationException("Item is not assigned to this motorcycle.");
+            }
+
+            // Remove the association
+            item.MotorcycleId = null;
+            motorcycle.Items.Remove(item);
+
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

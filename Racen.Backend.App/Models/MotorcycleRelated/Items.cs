@@ -23,6 +23,8 @@ namespace Racen.Backend.App.Models.MotorcycleRelated
         [Range(0, 100, ErrorMessage = "Handling must be between 0 and 100.")]
         public int Handling { get; set; }
         [Required]
+        public bool Enabled { get; set; }
+        [Required]
         [ForeignKey("OwnerId")]
         public required string OwnerId { get; set; }
         [ForeignKey("MotorcycleId")]

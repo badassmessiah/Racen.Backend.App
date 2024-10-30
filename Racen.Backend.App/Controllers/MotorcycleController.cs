@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Racen.Backend.App.Services;
 
 namespace Racen.Backend.App.Controllers
 {
@@ -7,6 +8,11 @@ namespace Racen.Backend.App.Controllers
     [ApiController]
     public class MotorcycleController : ControllerBase
     {
-        
+        private readonly MotorcycleService _motorcycleService;
+
+        public MotorcycleController(MotorcycleService motorcycleService)
+        {
+            _motorcycleService = motorcycleService;
+        }
     }
 }

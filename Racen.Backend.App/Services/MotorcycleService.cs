@@ -19,12 +19,17 @@ namespace Racen.Backend.App.Services
 
         public async Task<List<Motorcycle>> GetAllMotorcyclesAsync()
         {
-            return await _context.Motorcycles.ToListAsync();
+            return await _context.Motorcycles.Where(m => m.Enabled).ToListAsync();
+        }
+
+        public async Task<List<Motorcycle>> GetDisabledMotorcyclesAsync()
+        {
+            return await _context.Motorcycles.Where(m => !m.Enabled).ToListAsync();
         }
 
         public async Task<Motorcycle> GetMotorcycleByIdAsync(string id)
         {
-            var motorcycle = await _context.Motorcycles.FirstOrDefaultAsync(c => c.Id == id);
+            var motorcycle = await _context.Motorcycles.FirstOrDefaultAsync(m => m.Id == id && m.Enabled);
             if (motorcycle == null)
             {
                 throw new KeyNotFoundException($"Motorcycle with ID {id} not found.");
@@ -38,6 +43,35 @@ namespace Racen.Backend.App.Services
             await _context.SaveChangesAsync();
             return motorcycle;
         }
-        
+
+        public async Task<Motorcycle> UpdateMotorcycleAsync(string id, Motorcycle motorcycle)
+        {
+            if (id != motorcycle.Id)
+            {
+                throw new InvalidOperationException("ID mismatch.");
+            }
+
+            var existingMotorcycle = await _context.Motorcycles.FirstOrDefaultAsync(m => m.Id == id && m.Enabled);
+            if (existingMotorcycle == null)
+            {
+                throw new KeyNotFoundException($"Motorcycle with ID {id} not found.");
+            }
+
+            _context.Entry(existingMotorcycle).CurrentValues.SetValues(motorcycle);
+            await _context.SaveChangesAsync();
+            return existingMotorcycle;
+        }
+
+        public async Task DeleteMotorcycleAsync(string id)
+        {
+            var motorcycle = await _context.Motorcycles.FirstOrDefaultAsync(c => c.Id == id);
+            if (motorcycle == null)
+            {
+                throw new KeyNotFoundException($"Motorcycle not found.");
+            }
+            motorcycle.Enabled = false;
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

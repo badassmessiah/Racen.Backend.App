@@ -24,6 +24,8 @@ namespace Racen.Backend.App.Models.MotorcycleRelated
         [Required]
         public Rarity Rarity { get; set; }
         [Required]
+        public bool Enabled { get; set; }
+        [Required]
         [ForeignKey("OwnerId")]
         public required string OwnerId { get; set; }
         private List<Items>? _items;

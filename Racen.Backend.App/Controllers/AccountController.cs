@@ -118,5 +118,12 @@ namespace Racen.Backend.App.Controllers
             }
             return BadRequest(new { message = "Role assignment failed" });
         }
+
+        [HttpGet("users")]
+        public async Task<IActionResult> GetUsers()
+        {
+            var users = await _accountService.GetAllUsersAsync();
+            return Ok(users);
+        }
     }
 }

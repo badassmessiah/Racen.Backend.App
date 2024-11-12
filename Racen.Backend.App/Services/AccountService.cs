@@ -9,8 +9,10 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Racen.Backend.App.Models.Car;
 using Racen.Backend.App.DTOs;
+using Racen.Backend.App.DTOs.Motorcycle;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Racen.Backend.App.Models.MotorcycleRelated;
 
 namespace Racen.Backend.App.Services
 {
@@ -56,30 +58,27 @@ namespace Racen.Backend.App.Services
             await _userManager.AddToRoleAsync(user, "user");
 
             // Create initial car for the user
-            await CreateInitialCarForUserAsync(user.Id);
+            await CreateInitialMotorcycleForUserAsync(user.Id);
 
             return IdentityResult.Success;
         }
 
-        private async Task CreateInitialCarForUserAsync(string userId)
+        private async Task CreateInitialMotorcycleForUserAsync(string userId)
         {
-            var car = new CarModel
+            var motorcycle = new Motorcycle
             {
                 Id = Guid.NewGuid().ToString(),
-                Name = "Initial Car",
+                Name = "Initial Motorcycle",
                 Speed = 100, // Default values
-                Acceleration = 50,
-                Aerodynamics = 50,
-                TyreGrip = 50,
-                Weight = 1000,
-                Power = 100,
-                FuelConsumption = 10,
-                Level = 1,
-                OwnerId = userId,
-                Rarity = GetRandomRarity()
+                Power = 150,
+                Handling = 80,
+                Rarity = Rarity.Common, // Assuming Rarity is an enum
+                Enabled = true,
+                OwnerId = userId
             };
 
-            await _carService.CreateCarAsync(car);
+            await _context.Motorcycles.AddAsync(motorcycle);
+            await _context.SaveChangesAsync();
         }
 
         private CarRarity GetRandomRarity()
@@ -251,6 +250,11 @@ namespace Racen.Backend.App.Services
             }
 
             return principal;
+        }
+
+        public async Task<List<ApplicationUser>> GetAllUsersAsync()
+        {
+            return await _userManager.Users.ToListAsync();
         }
     }
 }

@@ -141,7 +141,7 @@ namespace Racen.Backend.App.Services
 
             // Remove the association
             item.MotorcycleId = null;
-            motorcycle.Items.Remove(item);
+            motorcycle.Items?.Remove(item);
 
             await _context.SaveChangesAsync();
         }

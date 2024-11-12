@@ -7,6 +7,8 @@ using Racen.Backend.App.Data;
 using Racen.Backend.App.Models.User;
 using Microsoft.OpenApi.Models;
 using Racen.Backend.App.Services;
+using AutoMapper;
+using Racen.Backend.App.Mappings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -85,8 +87,11 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("UserPolicy", policy => policy.RequireRole("user"));
 });
 
+builder.Services.AddAutoMapper(typeof(Mappings).Assembly);
+
 builder.Services.AddScoped<CarService>();
 builder.Services.AddScoped<AccountService>();
+builder.Services.AddScoped<MotorcycleService>();
 
 var app = builder.Build();
 

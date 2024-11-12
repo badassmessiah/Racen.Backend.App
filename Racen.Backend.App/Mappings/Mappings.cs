@@ -8,7 +8,10 @@ namespace Racen.Backend.App.Mappings
     {
         public Mappings()
         {
-            CreateMap<MotorcycleCreationDTO, Motorcycle>();
+            CreateMap<MotorcycleCreateDto, Motorcycle>();
+            CreateMap<MotorcycleUpdateDto, Motorcycle>();
+            CreateMap<Motorcycle, MotorcycleReadDto>();
+            CreateMap<Items, ItemReadDto>();
         }
     }
 }

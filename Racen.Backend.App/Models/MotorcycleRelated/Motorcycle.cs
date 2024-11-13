@@ -43,14 +43,55 @@ namespace Racen.Backend.App.Models.MotorcycleRelated
         }
 
         public byte FuelCapacity { get; set; }
+        public decimal Level { get; set; }
 
         public Motorcycle()
         {
-            SetDefaultFuelCapacity();
+            SetDefaultProperties();
         }
 
-        private void SetDefaultFuelCapacity()
+        private void SetDefaultProperties()
         {
+            var random = new Random();
+
+            Enabled = true;
+
+            Speed = Rarity switch
+            {
+                Rarity.Basic => random.Next(40,60),
+                Rarity.Common => random.Next(80,110),
+                Rarity.Rare => random.Next(130,160),
+                Rarity.VeryRare => random.Next(170, 210),
+                Rarity.Super => random.Next(230, 260),
+                Rarity.Hyper => random.Next(280, 310),
+                Rarity.Legendary => random.Next(330, 360),
+                _ => random.Next(40,60)
+            };
+
+            Power = Rarity switch
+            {
+                Rarity.Basic => random.Next(50, 100),
+                Rarity.Common => random.Next(100, 150),
+                Rarity.Rare => random.Next(150, 200),
+                Rarity.VeryRare => random.Next(200, 250),
+                Rarity.Super => random.Next(250, 300),
+                Rarity.Hyper => random.Next(300, 350),
+                Rarity.Legendary => random.Next(350, 400),
+                _ => random.Next(50, 100)
+            };
+
+            Handling = Rarity switch
+            {
+                Rarity.Basic => random.Next(5, 20),
+                Rarity.Common => random.Next(20, 40),
+                Rarity.Rare => random.Next(40, 60),
+                Rarity.VeryRare => random.Next(60, 80),
+                Rarity.Super => random.Next(80, 90),
+                Rarity.Hyper => random.Next(90, 95),
+                Rarity.Legendary => random.Next(95, 100),
+                _ => random.Next(5, 20)
+            };
+
             FuelCapacity = Rarity switch
             {
                 Rarity.Basic => 3,
@@ -63,5 +104,6 @@ namespace Racen.Backend.App.Models.MotorcycleRelated
                 _ => 3
             };
         }
+
     }
 }

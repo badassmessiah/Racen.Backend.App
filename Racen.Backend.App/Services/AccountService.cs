@@ -54,7 +54,7 @@ namespace Racen.Backend.App.Services
 
             await _userManager.AddToRoleAsync(user, "user");
 
-            // Create initial car for the user
+            
             await CreateInitialMotorcycleForUserAsync(user.Id);
 
             return IdentityResult.Success;
@@ -65,12 +65,8 @@ namespace Racen.Backend.App.Services
             var motorcycle = new Motorcycle
             {
                 Id = Guid.NewGuid().ToString(),
-                Name = "Initial Motorcycle",
-                Speed = 100, // Default values
-                Power = 150,
-                Handling = 80,
+                Name = "Zuzuki",
                 Rarity = Rarity.Common, // Assuming Rarity is an enum
-                Enabled = true,
                 OwnerId = userId
             };
 

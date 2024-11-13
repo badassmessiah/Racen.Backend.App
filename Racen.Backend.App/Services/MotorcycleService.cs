@@ -153,5 +153,19 @@ namespace Racen.Backend.App.Services
                 .ToListAsync();
         }
 
+        public async Task<List<Items>> GetMotorcycleItemsAsync(string motorcycleId)
+        {
+            var motorcycle = await _context.Motorcycles
+                .Include(m => m.Items)
+                .FirstOrDefaultAsync(m => m.Id == motorcycleId && m.Enabled);
+
+            if (motorcycle == null)
+            {
+                throw new KeyNotFoundException($"Motorcycle with ID {motorcycleId} not found.");
+            }
+
+            return motorcycle.Items ?? new List<Items>();
+        }
+
     }
 }

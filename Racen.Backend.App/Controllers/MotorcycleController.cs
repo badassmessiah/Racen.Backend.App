@@ -136,6 +136,20 @@ namespace Racen.Backend.App.Controllers
             var motorcycleDtos = _mapper.Map<IEnumerable<MotorcycleReadDto>>(motorcycles);
             return Ok(motorcycleDtos);
         }
+
+        [HttpGet("{motorcycleId}/items")]
+        public async Task<IActionResult> GetMotorcycleItems(string motorcycleId)
+        {
+            try
+            {
+                var items = await _motorcycleService.GetMotorcycleItemsAsync(motorcycleId);
+                return Ok(items);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
     }
 
 }

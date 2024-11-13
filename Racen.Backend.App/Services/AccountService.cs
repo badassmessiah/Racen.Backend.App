@@ -7,7 +7,6 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using Racen.Backend.App.Models.Car;
 using Racen.Backend.App.DTOs;
 using Racen.Backend.App.DTOs.Motorcycle;
 using Microsoft.EntityFrameworkCore;
@@ -22,16 +21,14 @@ namespace Racen.Backend.App.Services
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
         private readonly AppDbContext _context;
-        private readonly CarService _carService;
         private readonly ILogger<AccountService> _logger;
 
-        public AccountService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, AppDbContext context, CarService carService, ILogger<AccountService> logger)
+        public AccountService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, AppDbContext context, ILogger<AccountService> logger)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _configuration = configuration;
             _context = context;
-            _carService = carService;
             _logger = logger;
         }
 
@@ -81,11 +78,6 @@ namespace Racen.Backend.App.Services
             await _context.SaveChangesAsync();
         }
 
-        private CarRarity GetRandomRarity()
-        {
-            var random = new Random();
-            return random.NextDouble() < 0.7 ? CarRarity.Basic : CarRarity.Common;
-        }
 
         public async Task<JwtSecurityToken> GenerateJwtTokenAsync(ApplicationUser user)
         {

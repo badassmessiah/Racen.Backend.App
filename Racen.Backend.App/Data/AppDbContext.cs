@@ -2,9 +2,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Racen.Backend.App.Models;
-using Racen.Backend.App.Models.Car;
 using Racen.Backend.App.Models.User;
-using Racen.Backend.App.Models.Accessories;
 using Racen.Backend.App.Models.MotorcycleRelated;
 
 namespace Racen.Backend.App.Data
@@ -13,12 +11,12 @@ namespace Racen.Backend.App.Data
     {
         public AppDbContext(DbContextOptions options) : base(options)
         {
+            RefreshTokens = Set<RefreshToken>();
+            Motorcycles = Set<Motorcycle>();
+            Items = Set<Items>();
         }
 
         public DbSet<RefreshToken> RefreshTokens { get; set; }
-        public DbSet<CarModel> Cars { get; set; }
-        public DbSet<AccessoryModel> Accessories { get; set; }
-        public DbSet<UserAccessoryModel> UserAccessories { get; set; }
 
         public DbSet<Motorcycle> Motorcycles { get; set; }
         public DbSet<Items> Items { get; set; }
@@ -31,31 +29,6 @@ namespace Racen.Backend.App.Data
             modelBuilder.Entity<RefreshToken>()
                 .HasKey(rt => rt.Id);
 
-            // Configure the unique constraint for accessories
-            modelBuilder.Entity<AccessoryModel>()
-                .HasIndex(a => new { a.CarId, a.Type })
-                .IsUnique();
-
-            // Configure the relationship between AccessoryModel and CarModel
-            modelBuilder.Entity<AccessoryModel>()
-                .HasOne(a => a.Car)
-                .WithMany(c => c.Accessories)
-                .HasForeignKey(a => a.CarId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Configure the relationship between UserAccessoryModel and ApplicationUser
-            modelBuilder.Entity<UserAccessoryModel>()
-                .HasOne(ua => ua.User)
-                .WithMany(u => u.UserAccessories)
-                .HasForeignKey(ua => ua.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Configure the relationship between UserAccessoryModel and AccessoryModel
-            modelBuilder.Entity<UserAccessoryModel>()
-                .HasOne(ua => ua.Accessory)
-                .WithMany()
-                .HasForeignKey(ua => ua.AccessoryId)
-                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

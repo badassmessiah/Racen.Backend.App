@@ -89,7 +89,6 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddAutoMapper(typeof(Mappings).Assembly);
 
-builder.Services.AddScoped<CarService>();
 builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<MotorcycleService>();
 

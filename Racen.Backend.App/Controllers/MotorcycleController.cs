@@ -21,7 +21,7 @@ namespace Racen.Backend.App.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet]
+        [HttpGet("all")]
         public async Task<IActionResult> GetAllMotorcycles()
         {
             var motorcycles = await _motorcycleService.GetAllMotorcyclesAsync();

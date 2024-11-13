@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Racen.Backend.App.Data;
 using Racen.Backend.App.Models.MotorcycleRelated;
+using Racen.Backend.App.Models.User;
 
 namespace Racen.Backend.App.Services
 {
@@ -37,9 +38,20 @@ namespace Racen.Backend.App.Services
             return motorcycle;
         }
 
-        public async Task<Motorcycle> CreateMotorcycleAsync(Motorcycle motorcycle)
+        public async Task<Motorcycle> CreateMotorcycleAsync(string name,string userId, Rarity rarity, ApplicationUser owner)
         {
-            _context.Motorcycles.Add(motorcycle);
+            var motorcycle = new Motorcycle
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = name,
+                Rarity = rarity,
+                OwnerId = userId,
+                Owner = owner
+            };
+            
+            DefaultProperties.SetDefaultProperties(motorcycle);
+
+            await _context.Motorcycles.AddAsync(motorcycle);
             await _context.SaveChangesAsync();
             return motorcycle;
         }

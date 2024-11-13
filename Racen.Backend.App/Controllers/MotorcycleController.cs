@@ -49,9 +49,28 @@ namespace Racen.Backend.App.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateMotorcycle()
+        public async Task<IActionResult> CreateMotorcycle([FromBody] MotorcycleCreateDto motorcycleDto)
         {
-            return Ok();
+            var motorcycle = _mapper.Map<Motorcycle>(motorcycleDto);
+            motorcycle.Id = Guid.NewGuid().ToString();
+            DefaultProperties.SetDefaultProperties(motorcycle);
+            var applicationUser = await _userManager.FindByIdAsync(motorcycleDto.OwnerId);
+            if (applicationUser == null)
+            {
+                return BadRequest("Owner not found.");
+            }
+
+            try
+            {
+                await _motorcycleService.CreateMotorcycleAsync(motorcycleDto.Name, motorcycleDto.OwnerId, motorcycle.Rarity, applicationUser);
+                return CreatedAtAction(nameof(GetMotorcycleById), new { id = motorcycle.Id }, motorcycle);
+            }
+            catch (Exception ex)
+            {
+                // Log any other exceptions
+                Console.WriteLine(ex + " An unexpected error occurred while creating the motorcycle.");
+                return StatusCode(500, ex + "\nAn unexpected error occurred.");
+            }
         }
 
         [HttpPut("{id}")]

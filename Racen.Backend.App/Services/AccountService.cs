@@ -67,7 +67,8 @@ namespace Racen.Backend.App.Services
                 Id = Guid.NewGuid().ToString(),
                 Name = "Zuzuki",
                 Rarity = Rarity.Common, // Assuming Rarity is an enum
-                OwnerId = userId
+                OwnerId = userId,
+                Owner = await _userManager.FindByIdAsync(userId) ?? throw new InvalidOperationException("User not found") // Set the Owner property
             };
 
             await _context.Motorcycles.AddAsync(motorcycle);

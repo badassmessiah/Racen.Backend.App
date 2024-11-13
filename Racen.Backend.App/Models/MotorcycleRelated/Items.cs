@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Racen.Backend.App.Models.User;
 
 namespace Racen.Backend.App.Models.MotorcycleRelated
 {
@@ -25,10 +26,17 @@ namespace Racen.Backend.App.Models.MotorcycleRelated
         [Required]
         public bool Enabled { get; set; }
         [Required]
-        [ForeignKey("OwnerId")]
         public required string OwnerId { get; set; }
-        [ForeignKey("MotorcycleId")]
+
+        // Navigation property to ApplicationUser
+        [ForeignKey("OwnerId")]
+        public required ApplicationUser Owner { get; set; }
+
+        // Foreign key to Motorcycle
         public string? MotorcycleId { get; set; }
+
+        // Navigation property to Motorcycle
+        [ForeignKey("MotorcycleId")]
         public Motorcycle? Motorcycle { get; set; }
     }
 }

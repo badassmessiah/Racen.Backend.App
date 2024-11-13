@@ -20,7 +20,7 @@ namespace Racen.Backend.App.DTOs.Motorcycle
         public int Speed { get; set; }
 
         [Required]
-        [Range(50, 1000, ErrorMessage = "Power must be between 50 and 1000.")]
+        [Range(0, 320, ErrorMessage = "Power must be between 0 and 320.")]
         public int Power { get; set; }
 
         [Required]

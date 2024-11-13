@@ -13,10 +13,10 @@ namespace Racen.Backend.App.Models.MotorcycleRelated
         [StringLength(100, MinimumLength = 1, ErrorMessage = "Name must be between 1 and 100 characters.")]
         public string Name { get; set; } = string.Empty;
         [Required]
-        [Range(0, 420, ErrorMessage = "Speed must be between 0 and 500.")]
+        [Range(0, 420, ErrorMessage = "Speed must be between 0 and 420.")]
         public int Speed { get; set; }
         [Required]
-        [Range(0, 320, ErrorMessage = "Power must be between 50 and 1000.")]
+        [Range(0, 320, ErrorMessage = "Power must be between 0 and 320.")]
         public int Power { get; set; }
         [Required]
         [Range(0, 100, ErrorMessage = "Handling must be between 0 and 100.")]
@@ -26,8 +26,9 @@ namespace Racen.Backend.App.Models.MotorcycleRelated
         [Required]
         public bool Enabled { get; set; }
         [Required]
-        [ForeignKey("OwnerId")]
         public required string OwnerId { get; set; }
+        [ForeignKey("OwnerId")]
+        public required ApplicationUser Owner { get; set; }
         private List<Items>? _items;
         public List<Items>? Items
         {
@@ -49,10 +50,10 @@ namespace Racen.Backend.App.Models.MotorcycleRelated
         {
             SetDefaultProperties();
         }
-
+        private static readonly Random random = new Random();
         private void SetDefaultProperties()
         {
-            var random = new Random();
+            // var random = new Random();
 
             Enabled = true;
 

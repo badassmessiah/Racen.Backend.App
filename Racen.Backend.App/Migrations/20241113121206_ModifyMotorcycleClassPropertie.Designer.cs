@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Racen.Backend.App.Data;
 
@@ -10,9 +11,11 @@ using Racen.Backend.App.Data;
 namespace Racen.Backend.App.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241113121206_ModifyMotorcycleClassPropertie")]
+    partial class ModifyMotorcycleClassPropertie
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.10");
@@ -150,6 +153,9 @@ namespace Racen.Backend.App.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("Enabled")
                         .HasColumnType("INTEGER");
 
@@ -179,9 +185,9 @@ namespace Racen.Backend.App.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MotorcycleId");
+                    b.HasIndex("ApplicationUserId");
 
-                    b.HasIndex("OwnerId");
+                    b.HasIndex("MotorcycleId");
 
                     b.ToTable("Items");
                 });
@@ -385,19 +391,15 @@ namespace Racen.Backend.App.Migrations
 
             modelBuilder.Entity("Racen.Backend.App.Models.MotorcycleRelated.Items", b =>
                 {
+                    b.HasOne("Racen.Backend.App.Models.User.ApplicationUser", null)
+                        .WithMany("Items")
+                        .HasForeignKey("ApplicationUserId");
+
                     b.HasOne("Racen.Backend.App.Models.MotorcycleRelated.Motorcycle", "Motorcycle")
                         .WithMany("Items")
                         .HasForeignKey("MotorcycleId");
 
-                    b.HasOne("Racen.Backend.App.Models.User.ApplicationUser", "Owner")
-                        .WithMany("Items")
-                        .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Motorcycle");
-
-                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("Racen.Backend.App.Models.MotorcycleRelated.Motorcycle", b =>

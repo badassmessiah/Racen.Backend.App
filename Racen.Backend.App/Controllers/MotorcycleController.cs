@@ -128,6 +128,14 @@ namespace Racen.Backend.App.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetUserMotorcycles(string userId)
+        {
+            var motorcycles = await _motorcycleService.GetUserMotorcyclesAsync(userId);
+            var motorcycleDtos = _mapper.Map<IEnumerable<MotorcycleReadDto>>(motorcycles);
+            return Ok(motorcycleDtos);
+        }
     }
 
 }

@@ -146,5 +146,12 @@ namespace Racen.Backend.App.Services
             await _context.SaveChangesAsync();
         }
 
+        public async Task<List<Motorcycle>> GetUserMotorcyclesAsync(string userId)
+        {
+            return await _context.Motorcycles
+                .Where(m => m.OwnerId == userId && m.Enabled)
+                .ToListAsync();
+        }
+
     }
 }

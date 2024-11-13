@@ -41,5 +41,27 @@ namespace Racen.Backend.App.Models.MotorcycleRelated
                 _items = value;
             }
         }
+
+        public byte FuelCapacity { get; set; }
+
+        public Motorcycle()
+        {
+            SetDefaultFuelCapacity();
+        }
+
+        private void SetDefaultFuelCapacity()
+        {
+            FuelCapacity = Rarity switch
+            {
+                Rarity.Basic => 3,
+                Rarity.Common => 4,
+                Rarity.Rare => 5,
+                Rarity.VeryRare => 6,
+                Rarity.Super => 7,
+                Rarity.Hyper => 8,
+                Rarity.Legendary => 9,
+                _ => 3
+            };
+        }
     }
 }

@@ -12,6 +12,7 @@ using Racen.Backend.App.DTOs.Motorcycle;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Racen.Backend.App.Models.MotorcycleRelated;
+using AutoMapper;
 
 namespace Racen.Backend.App.Services
 {
@@ -22,14 +23,19 @@ namespace Racen.Backend.App.Services
         private readonly IConfiguration _configuration;
         private readonly AppDbContext _context;
         private readonly ILogger<AccountService> _logger;
+        private readonly IMapper _mapper;
 
-        public AccountService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, AppDbContext context, ILogger<AccountService> logger)
+        private readonly MotorcycleService _motorcycleService;
+
+        public AccountService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, AppDbContext context, ILogger<AccountService> logger, IMapper mapper, MotorcycleService motorcycleService)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _configuration = configuration;
             _context = context;
             _logger = logger;
+            _mapper = mapper;
+            _motorcycleService = motorcycleService;
         }
 
         public async Task<IdentityResult> RegisterUserAsync(Register model)
@@ -62,17 +68,24 @@ namespace Racen.Backend.App.Services
 
         private async Task CreateInitialMotorcycleForUserAsync(string userId)
         {
+            var owner = await _userManager.FindByIdAsync(userId)
+                ?? throw new InvalidOperationException("User not found");
+
             var motorcycle = new Motorcycle
             {
                 Id = Guid.NewGuid().ToString(),
-                Name = "Zuzuki",
-                Rarity = Rarity.Common, // Assuming Rarity is an enum
+                Name = "Initial Motorcycle",
+                Level = 1,
+                Rarity = Rarity.Common,
                 OwnerId = userId,
-                Owner = await _userManager.FindByIdAsync(userId) ?? throw new InvalidOperationException("User not found") // Set the Owner property
+                Owner = owner,
             };
 
-            await _context.Motorcycles.AddAsync(motorcycle);
-            await _context.SaveChangesAsync();
+            await _motorcycleService.CreateMotorcycleAsync(motorcycle);
+
+            _logger.LogInformation("Initial motorcycle created for user ID: {UserId}", userId);
+            
+            
         }
 
 

@@ -4,6 +4,8 @@ using Racen.Backend.App.DTOs.Motorcycle;
 using AutoMapper;
 using Racen.Backend.App.Models.MotorcycleRelated;
 using Racen.Backend.App.Services;
+using Microsoft.AspNetCore.Identity;
+using Racen.Backend.App.Models.User;
 
 
 namespace Racen.Backend.App.Controllers
@@ -13,12 +15,14 @@ namespace Racen.Backend.App.Controllers
     public class MotorcycleController : ControllerBase
     {
         private readonly MotorcycleService _motorcycleService;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
 
-        public MotorcycleController(MotorcycleService motorcycleService, IMapper mapper)
+        public MotorcycleController(MotorcycleService motorcycleService, IMapper mapper, UserManager<ApplicationUser> userManager)
         {
             _motorcycleService = motorcycleService;
             _mapper = mapper;
+            _userManager = userManager;
         }
 
         [HttpGet("all")]
@@ -45,13 +49,20 @@ namespace Racen.Backend.App.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateMotorcycle([FromBody] MotorcycleCreateDto motorcycleDto)
+        public async Task<IActionResult> CreateMotorcycle([FromBody] string Name, [FromBody] Rarity Rarity, [FromBody] string OwnerId)
         {
-            var motorcycle = _mapper.Map<Motorcycle>(motorcycleDto);
-            motorcycle.Id = Guid.NewGuid().ToString();
+            var motorcycle = new Motorcycle
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = Name,
+                Rarity = Rarity,
+                OwnerId = OwnerId,
+                Owner = await _userManager.FindByIdAsync(OwnerId) ?? throw new InvalidOperationException("Owner not found")
+            };
+
             await _motorcycleService.CreateMotorcycleAsync(motorcycle);
-            var createdMotorcycleDto = _mapper.Map<MotorcycleReadDto>(motorcycle);
-            return CreatedAtAction(nameof(GetMotorcycleById), new { id = motorcycle.Id }, createdMotorcycleDto);
+            var motorcycleDto = _mapper.Map<MotorcycleReadDto>(motorcycle);
+            return CreatedAtAction(nameof(GetMotorcycleById), new { id = motorcycleDto.Id }, motorcycleDto);
         }
 
         [HttpPut("{id}")]

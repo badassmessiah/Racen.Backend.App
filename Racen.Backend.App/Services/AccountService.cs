@@ -23,19 +23,16 @@ namespace Racen.Backend.App.Services
         private readonly IConfiguration _configuration;
         private readonly AppDbContext _context;
         private readonly ILogger<AccountService> _logger;
-        private readonly IMapper _mapper;
+        
 
-        private readonly MotorcycleService _motorcycleService;
-
-        public AccountService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, AppDbContext context, ILogger<AccountService> logger, IMapper mapper, MotorcycleService motorcycleService)
+        public AccountService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, AppDbContext context, ILogger<AccountService> logger)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _configuration = configuration;
             _context = context;
             _logger = logger;
-            _mapper = mapper;
-            _motorcycleService = motorcycleService;
+
         }
 
         public async Task<IdentityResult> RegisterUserAsync(Register model)
@@ -75,19 +72,24 @@ namespace Racen.Backend.App.Services
             {
                 Id = Guid.NewGuid().ToString(),
                 Name = "Initial Motorcycle",
-                Level = 1,
-                Rarity = Rarity.Common,
+                Rarity = Rarity.Basic,
                 OwnerId = userId,
-                Owner = owner,
+                Owner = owner
             };
-
-            await _motorcycleService.CreateMotorcycleAsync(motorcycle);
-
-            _logger.LogInformation("Initial motorcycle created for user ID: {UserId}", userId);
             
+            DefaultProperties.SetDefaultProperties(motorcycle);
+
+            await _context.Motorcycles.AddAsync(motorcycle);
+            _logger.LogInformation("Initial motorcycle created for user ID: {UserId}", userId);
+            await _context.SaveChangesAsync();
+
             
         }
 
+        private void SetDefaultProperties(Motorcycle motorcycle)
+        {
+            throw new NotImplementedException();
+        }
 
         public async Task<JwtSecurityToken> GenerateJwtTokenAsync(ApplicationUser user)
         {

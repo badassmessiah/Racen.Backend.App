@@ -49,20 +49,9 @@ namespace Racen.Backend.App.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateMotorcycle([FromBody] string Name, [FromBody] Rarity Rarity, [FromBody] string OwnerId)
+        public async Task<IActionResult> CreateMotorcycle()
         {
-            var motorcycle = new Motorcycle
-            {
-                Id = Guid.NewGuid().ToString(),
-                Name = Name,
-                Rarity = Rarity,
-                OwnerId = OwnerId,
-                Owner = await _userManager.FindByIdAsync(OwnerId) ?? throw new InvalidOperationException("Owner not found")
-            };
-
-            await _motorcycleService.CreateMotorcycleAsync(motorcycle);
-            var motorcycleDto = _mapper.Map<MotorcycleReadDto>(motorcycle);
-            return CreatedAtAction(nameof(GetMotorcycleById), new { id = motorcycleDto.Id }, motorcycleDto);
+            return Ok();
         }
 
         [HttpPut("{id}")]

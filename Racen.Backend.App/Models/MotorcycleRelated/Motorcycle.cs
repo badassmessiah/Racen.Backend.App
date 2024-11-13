@@ -16,7 +16,7 @@ namespace Racen.Backend.App.Models.MotorcycleRelated
         [Range(0, 420, ErrorMessage = "Speed must be between 0 and 500.")]
         public int Speed { get; set; }
         [Required]
-        [Range(50, 1000, ErrorMessage = "Power must be between 50 and 1000.")]
+        [Range(0, 320, ErrorMessage = "Power must be between 50 and 1000.")]
         public int Power { get; set; }
         [Required]
         [Range(0, 100, ErrorMessage = "Handling must be between 0 and 100.")]
@@ -58,38 +58,38 @@ namespace Racen.Backend.App.Models.MotorcycleRelated
 
             Speed = Rarity switch
             {
-                Rarity.Basic => random.Next(40,60),
+                Rarity.Basic => random.Next(40,79),
                 Rarity.Common => random.Next(80,110),
-                Rarity.Rare => random.Next(130,160),
-                Rarity.VeryRare => random.Next(170, 210),
-                Rarity.Super => random.Next(230, 260),
-                Rarity.Hyper => random.Next(280, 310),
-                Rarity.Legendary => random.Next(330, 360),
+                Rarity.Rare => random.Next(111,160),
+                Rarity.VeryRare => random.Next(161, 210),
+                Rarity.Super => random.Next(211, 260),
+                Rarity.Hyper => random.Next(261, 310),
+                Rarity.Legendary => random.Next(311, 400),
                 _ => random.Next(40,60)
             };
 
             Power = Rarity switch
             {
-                Rarity.Basic => random.Next(50, 100),
-                Rarity.Common => random.Next(100, 150),
-                Rarity.Rare => random.Next(150, 200),
-                Rarity.VeryRare => random.Next(200, 250),
-                Rarity.Super => random.Next(250, 300),
-                Rarity.Hyper => random.Next(300, 350),
-                Rarity.Legendary => random.Next(350, 400),
-                _ => random.Next(50, 100)
+                Rarity.Basic => random.Next(15, 35),
+                Rarity.Common => random.Next(36, 56),
+                Rarity.Rare => random.Next(57, 75),
+                Rarity.VeryRare => random.Next(76,96),
+                Rarity.Super => random.Next(97, 120),
+                Rarity.Hyper => random.Next(121, 160),
+                Rarity.Legendary => random.Next(161, 300),
+                _ => random.Next(15, 35)
             };
 
             Handling = Rarity switch
             {
-                Rarity.Basic => random.Next(5, 20),
-                Rarity.Common => random.Next(20, 40),
-                Rarity.Rare => random.Next(40, 60),
-                Rarity.VeryRare => random.Next(60, 80),
-                Rarity.Super => random.Next(80, 90),
-                Rarity.Hyper => random.Next(90, 95),
-                Rarity.Legendary => random.Next(95, 100),
-                _ => random.Next(5, 20)
+                Rarity.Basic => random.Next(5, 10),
+                Rarity.Common => random.Next(11, 22),
+                Rarity.Rare => random.Next(23, 34),
+                Rarity.VeryRare => random.Next(35, 45),
+                Rarity.Super => random.Next(46, 56),
+                Rarity.Hyper => random.Next(57, 67),
+                Rarity.Legendary => random.Next(68, 78),
+                _ => random.Next(5, 10)
             };
 
             FuelCapacity = Rarity switch

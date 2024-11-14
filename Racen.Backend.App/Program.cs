@@ -9,6 +9,7 @@ using Microsoft.OpenApi.Models;
 using Racen.Backend.App.Services;
 using AutoMapper;
 using Racen.Backend.App.Mappings;
+using Racen.Backend.App.Services.GamePlay;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -91,6 +92,8 @@ builder.Services.AddAutoMapper(typeof(Mappings).Assembly);
 
 builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<MotorcycleService>();
+
+builder.Services.AddScoped<MatchThePlayers>();
 
 var app = builder.Build();
 

@@ -175,5 +175,17 @@ namespace Racen.Backend.App.Services
             return motorcycle.Items ?? new List<Items>();
         }
 
+        public async Task LevelUpMotorcycleAsync(string motorcycleId)
+        {
+            var motorcycle = await _context.Motorcycles.FirstOrDefaultAsync(m => m.Id == motorcycleId && m.Enabled);
+            if (motorcycle == null)
+            {
+                throw new KeyNotFoundException($"Motorcycle with ID {motorcycleId} not found.");
+            }
+
+            motorcycle.Level += 0.1m;
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

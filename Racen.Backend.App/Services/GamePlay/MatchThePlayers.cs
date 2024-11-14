@@ -12,10 +12,12 @@ namespace Racen.Backend.App.Services.GamePlay
     public class MatchThePlayers
     {
         private readonly AppDbContext _context;
+        private readonly MotorcycleService _motorcycleService;
 
-        public MatchThePlayers(AppDbContext context)
+        public MatchThePlayers(AppDbContext context, MotorcycleService motorcycleService)
         {
             _context = context;
+            _motorcycleService = motorcycleService;
         }
 
         public async Task<NewMatch?> FindMatchAsync(Motorcycle motorcycle, GameMode gameMode)
@@ -40,13 +42,16 @@ namespace Racen.Backend.App.Services.GamePlay
                 // Create a new match with the game mode
                 var newMatch = new NewMatch
                 {
-                    Player1 = motorcycle,
-                    Player2 = matchedMotorcycle,
+                    Motorcycle1 = motorcycle,
+                    Motorcycle2 = matchedMotorcycle,
                     GameMode = gameMode
                 };
 
                 // Calculate the winner
                 newMatch.CalculateWinner();
+
+                
+
 
                 return newMatch;
             }

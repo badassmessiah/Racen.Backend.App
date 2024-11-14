@@ -5,23 +5,23 @@ namespace Racen.Backend.App.Models.Gameplay
 {
     public class NewMatch
     {
-        public required Motorcycle Player1 { get; set; }
-        public required Motorcycle Player2 { get; set; }
+        public required Motorcycle Motorcycle1 { get; set; }
+        public required Motorcycle Motorcycle2 { get; set; }
         public GameMode GameMode { get; set; }
         public Motorcycle? Winner { get; set; }
 
         public void CalculateWinner()
         {
-            var player1Score = GetTotalScore(Player1);
-            var player2Score = GetTotalScore(Player2);
+            var player1Score = GetTotalScore(Motorcycle1);
+            var player2Score = GetTotalScore(Motorcycle2);
 
             if (player1Score > player2Score)
             {
-                Winner = Player1;
+                Winner = Motorcycle1;
             }
             else if (player2Score > player1Score)
             {
-                Winner = Player2;
+                Winner = Motorcycle2;
             }
             else
             {

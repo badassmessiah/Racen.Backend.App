@@ -55,6 +55,7 @@ namespace Racen.Backend.App.Services
             if (!await _roleManager.RoleExistsAsync("user"))
                 await _roleManager.CreateAsync(new IdentityRole("user"));
 
+            await SetPlayerLevelAsync(user.Id, 1);
             await _userManager.AddToRoleAsync(user, "user");
 
             
@@ -287,6 +288,13 @@ namespace Racen.Backend.App.Services
         {
             var user = await _userManager.FindByIdAsync(userId) ?? throw new InvalidOperationException("User not found");
             user.Money += amount;
+            await _userManager.UpdateAsync(user);
+        }
+
+        public async Task SetPlayerLevelAsync(string userId, int level)
+        {
+            var user = await _userManager.FindByIdAsync(userId) ?? throw new InvalidOperationException("User not found");
+            user.Level = level;
             await _userManager.UpdateAsync(user);
         }
     }

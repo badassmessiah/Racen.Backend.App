@@ -25,6 +25,7 @@ namespace Racen.Backend.App.Controllers
             _userManager = userManager;
         }
 
+        [Authorize]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllMotorcycles()
         {
@@ -33,6 +34,7 @@ namespace Racen.Backend.App.Controllers
             return Ok(motorcycleDtos);
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetMotorcycleById(string id)
         {
@@ -48,13 +50,20 @@ namespace Racen.Backend.App.Controllers
             }
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateMotorcycle([FromBody] MotorcycleCreateDto motorcycleDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var motorcycle = _mapper.Map<Motorcycle>(motorcycleDto);
             motorcycle.Id = Guid.NewGuid().ToString();
             DefaultProperties.SetDefaultProperties(motorcycle);
             var applicationUser = await _userManager.FindByIdAsync(motorcycleDto.OwnerId);
+
             if (applicationUser == null)
             {
                 return BadRequest("Owner not found.");
@@ -67,12 +76,11 @@ namespace Racen.Backend.App.Controllers
             }
             catch (Exception ex)
             {
-                // Log any other exceptions
-                Console.WriteLine(ex + " An unexpected error occurred while creating the motorcycle.");
-                return StatusCode(500, ex + "\nAn unexpected error occurred.");
+                return StatusCode(500, "An unexpected error occurred.\n" + ex.Message);
             }
         }
 
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateMotorcycle(string id, [FromBody] MotorcycleUpdateDto motorcycleDto)
         {
@@ -98,6 +106,7 @@ namespace Racen.Backend.App.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMotorcycle(string id)
         {
@@ -112,6 +121,7 @@ namespace Racen.Backend.App.Controllers
             }
         }
 
+        [Authorize]
         [HttpPost("{motorcycleId}/items/{itemId}")]
         public async Task<IActionResult> AssignItemToMotorcycle(string motorcycleId, string itemId)
         {
@@ -130,6 +140,7 @@ namespace Racen.Backend.App.Controllers
             }
         }
 
+        [Authorize]
         [HttpDelete("{motorcycleId}/items/{itemId}")]
         public async Task<IActionResult> RemoveItemFromMotorcycle(string motorcycleId, string itemId)
         {
@@ -148,6 +159,7 @@ namespace Racen.Backend.App.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet("user/{userId}")]
         public async Task<IActionResult> GetUserMotorcycles(string userId)
         {
@@ -156,6 +168,7 @@ namespace Racen.Backend.App.Controllers
             return Ok(motorcycleDtos);
         }
 
+        [Authorize]
         [HttpGet("{motorcycleId}/items")]
         public async Task<IActionResult> GetMotorcycleItems(string motorcycleId)
         {

@@ -58,8 +58,10 @@ namespace Racen.Backend.App.Controllers
                 return Unauthorized(new { Status = "Error", Message = result.Errors.FirstOrDefault()?.Description });
 
             var user = await _userManager.FindByNameAsync(model.Username);
-            if (user == null) // Fix: Check if user is null
-                return Unauthorized(new { Status = "Error", Message = "Invalid username or password." });
+            if (user == null)
+            {
+                return Unauthorized(new ApiResponse { Status = "Error", Message = "Invalid username or password." });
+            }
 
             var (token, refreshToken) = await _accountService.GenerateTokensAsync(user);
 

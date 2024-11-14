@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Racen.Backend.App.Data;
 using Racen.Backend.App.Models.MotorcycleRelated;

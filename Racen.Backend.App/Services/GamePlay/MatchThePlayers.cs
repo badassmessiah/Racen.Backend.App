@@ -13,33 +13,40 @@ namespace Racen.Backend.App.Services.GamePlay
     {
         private readonly AppDbContext _context;
         private readonly MotorcycleService _motorcycleService;
+        private readonly AccountService _accountService;
 
-        public MatchThePlayers(AppDbContext context, MotorcycleService motorcycleService)
+        public MatchThePlayers(AppDbContext context, MotorcycleService motorcycleService, AccountService accountService)
         {
             _context = context;
             _motorcycleService = motorcycleService;
+            _accountService = accountService;
         }
+
+        private static readonly Dictionary<Rarity, decimal> PrizeAmounts = new Dictionary<Rarity, decimal>
+        {
+            { Rarity.Basic, 10 },
+            { Rarity.Common, 20 },
+            { Rarity.Rare, 30 },
+            { Rarity.VeryRare, 40 },
+            { Rarity.Super, 50 },
+            { Rarity.Hyper, 60 },
+            { Rarity.Legendary, 70 }
+        };
 
         public async Task<NewMatch?> FindMatchAsync(Motorcycle motorcycle, GameMode gameMode)
         {
-            // Define acceptable level and rarity differences
-            const decimal levelTolerance = 1.0m;
-            const int rarityTolerance = 1;
+            // Calculate the lower and upper bounds of the level range
+            decimal lowerBound = Math.Floor(motorcycle.Level);
+            decimal upperBound = lowerBound + 1;
 
-            // Get the numerical value of the motorcycle's rarity
-            int motorcycleRarityValue = (int)motorcycle.Rarity;
-
-            // Find a matching motorcycle
+            // Find a matching motorcycle within the same level range
             var matchedMotorcycle = await _context.Motorcycles
                 .Where(m => m.Id != motorcycle.Id && m.Enabled)
-                .Where(m => Math.Abs(m.Level - motorcycle.Level) <= levelTolerance)
-                .Where(m => Math.Abs((int)m.Rarity - motorcycleRarityValue) <= rarityTolerance)
-                .OrderBy(m => Math.Abs(m.Level - motorcycle.Level)) // Optional: prioritize closer matches
+                .Where(m => m.Level >= lowerBound && m.Level < upperBound)
                 .FirstOrDefaultAsync();
 
             if (matchedMotorcycle != null)
             {
-                // Create a new match with the game mode
                 var newMatch = new NewMatch
                 {
                     Motorcycle1 = motorcycle,
@@ -47,17 +54,50 @@ namespace Racen.Backend.App.Services.GamePlay
                     GameMode = gameMode
                 };
 
-                // Calculate the winner
                 newMatch.CalculateWinner();
 
-                
-
+                await UpdatePlayerStatsAsync(newMatch);
 
                 return newMatch;
             }
 
-            // No match found
             return null;
+        }
+
+        private async Task UpdatePlayerStatsAsync(NewMatch match)
+        {
+            var winner = match.Winner;
+            if (winner != null)
+            {
+                await _accountService.SetTotalMatchesPlayedAsync(winner.OwnerId);
+            }
+
+
+            if (winner != null)
+            {
+                // Update stats for the winner
+                await _accountService.SetPlayerWinAsync(winner.OwnerId);
+                
+
+                // Calculate and set prize money for the winner
+                var prizeMoney = CalculateMoneyBasedOnRarityAndLevel(winner);
+                await _accountService.SetPlayerMoneyAsync(winner.OwnerId, prizeMoney);
+            }
+
+            
+        }
+
+        private decimal CalculateMoneyBasedOnRarityAndLevel(Motorcycle motorcycle)
+        {
+            if (PrizeAmounts.TryGetValue(motorcycle.Rarity, out var basePrizeAmount))
+            {
+                // Calculate the level percentage (level 1 = 10%, level 10 = 100%)
+                decimal levelPercentage = motorcycle.Level / 10;
+                return basePrizeAmount * levelPercentage;
+            }
+
+            // Default prize amount if rarity is not found (should not happen if all rarities are covered)
+            return 0;
         }
 
     }

@@ -261,5 +261,33 @@ namespace Racen.Backend.App.Services
         {
             return await _userManager.FindByIdAsync(id) ?? throw new InvalidOperationException("User not found");
         }
+
+        public async Task SetPlayerWinAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId) ?? throw new InvalidOperationException("User not found");
+            user.Wins++;
+            await _userManager.UpdateAsync(user);
+        }
+
+        public async Task SetPlayerLossAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId) ?? throw new InvalidOperationException("User not found");
+            user.Losses++;
+            await _userManager.UpdateAsync(user);
+        }
+
+        public async Task SetTotalMatchesPlayedAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId) ?? throw new InvalidOperationException("User not found");
+            user.MatchesPlayed++;
+            await _userManager.UpdateAsync(user);
+        }
+
+        public async Task SetPlayerMoneyAsync(string userId, decimal amount)
+        {
+            var user = await _userManager.FindByIdAsync(userId) ?? throw new InvalidOperationException("User not found");
+            user.Money += amount;
+            await _userManager.UpdateAsync(user);
+        }
     }
 }

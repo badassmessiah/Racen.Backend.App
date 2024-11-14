@@ -46,6 +46,7 @@ namespace Racen.Backend.App.Services
             };
             
             DefaultProperties.SetDefaultProperties(motorcycle);
+            await SetMotorcycleLevelAsync(motorcycle.Id, 1.0m);
 
             await _context.Motorcycles.AddAsync(motorcycle);
             await _context.SaveChangesAsync();
@@ -184,6 +185,18 @@ namespace Racen.Backend.App.Services
             }
 
             motorcycle.Level += 0.1m;
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task SetMotorcycleLevelAsync(string motorcycleId, decimal level)
+        {
+            var motorcycle = await _context.Motorcycles.FirstOrDefaultAsync(m => m.Id == motorcycleId && m.Enabled);
+            if (motorcycle == null)
+            {
+                throw new KeyNotFoundException($"Motorcycle with ID {motorcycleId} not found.");
+            }
+
+            motorcycle.Level = level;
             await _context.SaveChangesAsync();
         }
 

@@ -86,10 +86,6 @@ namespace Racen.Backend.App.Services
             
         }
 
-        private void SetDefaultProperties(Motorcycle motorcycle)
-        {
-            throw new NotImplementedException();
-        }
 
         public async Task<JwtSecurityToken> GenerateJwtTokenAsync(ApplicationUser user)
         {
@@ -259,6 +255,11 @@ namespace Racen.Backend.App.Services
         public async Task<List<ApplicationUser>> GetAllUsersAsync()
         {
             return await _userManager.Users.ToListAsync();
+        }
+
+        public async Task<ApplicationUser> GetUserByIdAsync(string id)
+        {
+            return await _userManager.FindByIdAsync(id) ?? throw new InvalidOperationException("User not found");
         }
     }
 }

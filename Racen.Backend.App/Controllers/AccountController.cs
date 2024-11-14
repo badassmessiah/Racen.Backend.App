@@ -13,6 +13,7 @@ using Racen.Backend.App.DTOs;
 using Racen.Backend.App.Services;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Racen.Backend.App.Controllers
 {
@@ -36,10 +37,16 @@ namespace Racen.Backend.App.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] Register model)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var result = await _accountService.RegisterUserAsync(model);
             if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = result.Errors.FirstOrDefault()?.Description });
-
+            {
+                _logger.LogError("User registration failed: {Errors}", result.Errors);
+                return StatusCode(500, new { Status = "Error", Message = "User registration failed." });
+            }
             return Ok(new { Status = "Success", Message = "User created successfully!" });
         }
 
@@ -64,6 +71,7 @@ namespace Racen.Backend.App.Controllers
             });
         }
 
+
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken([FromBody] TokenRequest model)
         {
@@ -86,6 +94,7 @@ namespace Racen.Backend.App.Controllers
             });
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("add-role")]
         public async Task<IActionResult> AddRole([FromBody] string role)
         {
@@ -102,6 +111,7 @@ namespace Racen.Backend.App.Controllers
             return BadRequest(new { message = "Role already exists" });
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("assign-role")]
         public async Task<IActionResult> AssignRole([FromBody] UserRole model)
         {
@@ -119,11 +129,23 @@ namespace Racen.Backend.App.Controllers
             return BadRequest(new { message = "Role assignment failed" });
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("users")]
         public async Task<IActionResult> GetUsers()
         {
             var users = await _accountService.GetAllUsersAsync();
             return Ok(users);
+        }
+
+        [HttpGet("user/{id}")]
+        public async Task<IActionResult> GetUserById(string id)
+        {
+            var user = await _accountService.GetUserByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound(new { message = "User not found" });
+            }
+            return Ok(user);
         }
     }
 }

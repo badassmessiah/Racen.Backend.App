@@ -46,10 +46,13 @@ namespace Racen.Backend.App.Services
             };
             
             DefaultProperties.SetDefaultProperties(motorcycle);
-            await SetMotorcycleLevelAsync(motorcycle.Id, 1.0m);
+            
 
             await _context.Motorcycles.AddAsync(motorcycle);
             await _context.SaveChangesAsync();
+
+            await SetMotorcycleLevelAsync(motorcycle.Id, 1.0m);
+
             return motorcycle;
         }
 

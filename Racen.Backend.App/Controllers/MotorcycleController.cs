@@ -51,7 +51,7 @@ namespace Racen.Backend.App.Controllers
         }
 
         [Authorize]
-        [HttpPost]
+        [HttpPost("create")]
         public async Task<IActionResult> CreateMotorcycle([FromBody] MotorcycleCreateDto motorcycleDto)
         {
             if (!ModelState.IsValid)
@@ -72,8 +72,7 @@ namespace Racen.Backend.App.Controllers
             try
             {
                 await _motorcycleService.CreateMotorcycleAsync(motorcycleDto.Name, motorcycleDto.OwnerId, motorcycle.Rarity, applicationUser);
-                return CreatedAtAction(nameof(GetMotorcycleById), new { id = motorcycle.Id }, motorcycle);
-            }
+                return StatusCode(201, motorcycleDto);            }
             catch (Exception ex)
             {
                 return StatusCode(500, "An unexpected error occurred.\n" + ex.Message);

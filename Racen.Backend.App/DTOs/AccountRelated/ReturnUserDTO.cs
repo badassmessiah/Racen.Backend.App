@@ -7,7 +7,7 @@ namespace Racen.Backend.App.DTOs.AccountRelated
 {
     public class ReturnUserDTO
     {
-        public string Name { get; set; }
-        public string Email { get; set; }
+        public string? Name { get; set; }
+        public string? Email { get; set; }
     }
 }

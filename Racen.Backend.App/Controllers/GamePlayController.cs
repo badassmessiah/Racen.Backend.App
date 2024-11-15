@@ -1,10 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Racen.Backend.App.DTOs.Gameplay;
-using Racen.Backend.App.Models.Gameplay;
-using Racen.Backend.App.Models.MotorcycleRelated;
 using Racen.Backend.App.Services.GamePlay;
-using Racen.Backend.App.Data;
-using System.Threading.Tasks;
 using Racen.Backend.App.Services;
 
 namespace Racen.Backend.App.Controllers
@@ -38,8 +34,8 @@ namespace Racen.Backend.App.Controllers
             }
 
             // Find a match
-            var match = await _matchThePlayers.FindMatchAsync(motorcycle, request.GameMode);
-            if (match == null)
+            var matchResult = await _matchThePlayers.FindMatchAsync(motorcycle, request.GameMode);
+            if (matchResult == null)
             {
                 return NotFound("No suitable match found.");
             }
@@ -47,25 +43,23 @@ namespace Racen.Backend.App.Controllers
             // Prepare the result
             var result = new
             {
-                Motorcycle1 = new
+                Initiator = new
                 {
-                    Id = match.Motorcycle1.Id,
-                    Name = match.Motorcycle1.Name,
-                    OwnerId = match.Motorcycle1.OwnerId
+                    Id = matchResult.Initiator.Id,
+                    Name = matchResult.Initiator.Name,
+                    OwnerId = matchResult.Initiator.OwnerId
                 },
-                Motorcycle2 = new
+                Opponent = new
                 {
-                    Id = match.Motorcycle2.Id,
-                    Name = match.Motorcycle2.Name,
-                    OwnerId = match.Motorcycle2.OwnerId
+                    Id = matchResult.Opponent.Id,
+                    Name = matchResult.Opponent.Name,
+                    OwnerId = matchResult.Opponent.OwnerId
                 },
-                Winner = match.Winner != null ? new
-                {
-                    Id = match.Winner.Id,
-                    Name = match.Winner.Name,
-                    OwnerId = match.Winner.OwnerId
-                } : null,
-                GameMode = match.GameMode.ToString()
+                IsInitiatorWinner = matchResult.IsInitiatorWinner,
+                PointsEarned = matchResult.PointsEarned,
+                TotalMatches = matchResult.Initiator.Owner.MatchesPlayed,
+                TotalWins = matchResult.Initiator.Owner.Wins,
+                TotalLosses = matchResult.Initiator.Owner.Losses
             };
 
             return Ok(result);

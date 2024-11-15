@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Racen.Backend.App.Models.MotorcycleRelated;
 
-namespace Racen.Backend.App.DTOs.Motorcycle
+namespace Racen.Backend.App.DTOs.MotorcycleDTOs
 {
     public class MotorcycleReadDto
     {

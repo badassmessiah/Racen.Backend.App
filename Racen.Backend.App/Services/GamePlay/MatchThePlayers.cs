@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Racen.Backend.App.Data;
+using Racen.Backend.App.DTOs.Gameplay;
 using Racen.Backend.App.Models.Gameplay;
 using Racen.Backend.App.Models.MotorcycleRelated;
 
@@ -23,17 +24,17 @@ namespace Racen.Backend.App.Services.GamePlay
         }
 
         private static readonly Dictionary<Rarity, decimal> PrizeAmounts = new Dictionary<Rarity, decimal>
-        {
-            { Rarity.Basic, 10 },
-            { Rarity.Common, 20 },
-            { Rarity.Rare, 30 },
-            { Rarity.VeryRare, 40 },
-            { Rarity.Super, 50 },
-            { Rarity.Hyper, 60 },
-            { Rarity.Legendary, 70 }
-        };
+    {
+        { Rarity.Basic, 10 },
+        { Rarity.Common, 20 },
+        { Rarity.Rare, 30 },
+        { Rarity.VeryRare, 40 },
+        { Rarity.Super, 50 },
+        { Rarity.Hyper, 60 },
+        { Rarity.Legendary, 70 }
+    };
 
-        public async Task<NewMatch?> FindMatchAsync(Motorcycle motorcycle, GameMode gameMode)
+        public async Task<MatchResult?> FindMatchAsync(Motorcycle motorcycle, GameMode gameMode)
         {
             // Calculate the lower and upper bounds of the level range
             decimal lowerBound = Math.Floor(motorcycle.Level);
@@ -54,37 +55,38 @@ namespace Racen.Backend.App.Services.GamePlay
                     GameMode = gameMode
                 };
 
-                newMatch.CalculateWinner();
+                var matchResult = newMatch.CalculateWinnerFromInitiatorPerspective(motorcycle);
 
-                await UpdatePlayerStatsAsync(newMatch);
+                await UpdatePlayerStatsAsync(matchResult);
 
-                return newMatch;
+                return matchResult;
             }
 
             return null;
         }
 
-        private async Task UpdatePlayerStatsAsync(NewMatch match)
+        private async Task UpdatePlayerStatsAsync(MatchResult matchResult)
         {
-            var winner = match.Winner;
-            if (winner != null)
-            {
-                await _accountService.SetTotalMatchesPlayedAsync(winner.OwnerId);
-            }
+            var initiator = matchResult.Initiator;
 
+            // Update total matches played
+            await _accountService.SetTotalMatchesPlayedAsync(initiator.OwnerId);
 
-            if (winner != null)
+            if (matchResult.IsInitiatorWinner)
             {
                 // Update stats for the winner
-                await _accountService.SetPlayerWinAsync(winner.OwnerId);
-                
-
-                // Calculate and set prize money for the winner
-                var prizeMoney = CalculateMoneyBasedOnRarityAndLevel(winner);
-                await _accountService.SetPlayerMoneyAsync(winner.OwnerId, prizeMoney);
+                await _accountService.SetPlayerWinAsync(initiator.OwnerId);
+            }
+            else
+            {
+                // Update stats for the loser
+                await _accountService.SetPlayerLossAsync(initiator.OwnerId);
             }
 
-            
+            // Calculate and set prize money for the winner
+            var prizeMoney = CalculateMoneyBasedOnRarityAndLevel(initiator);
+            await _accountService.SetPlayerMoneyAsync(initiator.OwnerId, prizeMoney);
+
         }
 
         private decimal CalculateMoneyBasedOnRarityAndLevel(Motorcycle motorcycle)
@@ -99,6 +101,5 @@ namespace Racen.Backend.App.Services.GamePlay
             // Default prize amount if rarity is not found (should not happen if all rarities are covered)
             return 0;
         }
-
     }
 }

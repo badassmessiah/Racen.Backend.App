@@ -10,7 +10,7 @@ namespace Racen.Backend.App.DTOs.Gameplay
     public class FindMatchRequest
     {
         [Required]
-        public string MotorcycleId { get; set; }
+        public required string MotorcycleId { get; set; }
 
         [Required]
         [EnumDataType(typeof(GameMode))]

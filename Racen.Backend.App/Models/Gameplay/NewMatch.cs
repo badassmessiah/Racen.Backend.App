@@ -1,5 +1,6 @@
 using Racen.Backend.App.Models.MotorcycleRelated;
 using Racen.Backend.App.Models.Gameplay;
+using Racen.Backend.App.DTOs.Gameplay;
 
 namespace Racen.Backend.App.Models.Gameplay
 {
@@ -10,7 +11,7 @@ namespace Racen.Backend.App.Models.Gameplay
         public GameMode GameMode { get; set; }
         public Motorcycle? Winner { get; set; }
 
-        public void CalculateWinner()
+        public MatchResult CalculateWinnerFromInitiatorPerspective(Motorcycle initiatorMotorcycle)
         {
             var player1Score = GetTotalScore(Motorcycle1);
             var player2Score = GetTotalScore(Motorcycle2);
@@ -27,6 +28,17 @@ namespace Racen.Backend.App.Models.Gameplay
             {
                 Winner = null;
             }
+
+            bool isInitiatorWinner = Winner == initiatorMotorcycle;
+            int pointsEarned = isInitiatorWinner ? 10 : 5; // Example points logic
+
+            return new MatchResult
+            {
+                Initiator = initiatorMotorcycle,
+                Opponent = initiatorMotorcycle == Motorcycle1 ? Motorcycle2 : Motorcycle1,
+                IsInitiatorWinner = isInitiatorWinner,
+                PointsEarned = pointsEarned
+            };
         }
 
         private int GetTotalScore(Motorcycle motorcycle)

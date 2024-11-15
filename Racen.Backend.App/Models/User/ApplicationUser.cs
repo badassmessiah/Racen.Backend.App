@@ -9,7 +9,6 @@ namespace Racen.Backend.App.Models.User
         public List<Items>? Items { get; set; } = new List<Items>();
 
         public decimal Money { get; set; }
-        public decimal Level { get; set; }
         public int MatchesPlayed { get; set; }
         public int Wins { get; set; }
         public int Losses { get; set; }

@@ -1,6 +1,6 @@
 using AutoMapper;
 using Racen.Backend.App.DTOs;
-using Racen.Backend.App.DTOs.Motorcycle;
+using Racen.Backend.App.DTOs.MotorcycleDTOs;
 using Racen.Backend.App.Models.MotorcycleRelated;
 using Racen.Backend.App.Models.User;
 namespace Racen.Backend.App.Mappings

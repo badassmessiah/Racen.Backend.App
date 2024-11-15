@@ -8,11 +8,8 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Racen.Backend.App.DTOs;
-using Racen.Backend.App.DTOs.Motorcycle;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Racen.Backend.App.Models.MotorcycleRelated;
-using AutoMapper;
 
 namespace Racen.Backend.App.Services
 {
@@ -55,7 +52,6 @@ namespace Racen.Backend.App.Services
             if (!await _roleManager.RoleExistsAsync("user"))
                 await _roleManager.CreateAsync(new IdentityRole("user"));
 
-            await SetPlayerLevelAsync(user.Id, 1);
             await _userManager.AddToRoleAsync(user, "user");
 
             
@@ -291,11 +287,5 @@ namespace Racen.Backend.App.Services
             await _userManager.UpdateAsync(user);
         }
 
-        public async Task SetPlayerLevelAsync(string userId, int level)
-        {
-            var user = await _userManager.FindByIdAsync(userId) ?? throw new InvalidOperationException("User not found");
-            user.Level = level;
-            await _userManager.UpdateAsync(user);
-        }
     }
 }

@@ -287,5 +287,48 @@ namespace Racen.Backend.App.Services
             await _userManager.UpdateAsync(user);
         }
 
+
+        public async Task<string> GeneratePasswordResetTokenAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                throw new InvalidOperationException("User not found");
+            }
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            _logger.LogInformation("Password reset token generated for user ID: {UserId}", user.Id);
+            return token;
+        }
+
+        public async Task SendPasswordResetTokenAsync(string email)
+        {
+            var token = await GeneratePasswordResetTokenAsync(email);
+            // Here you would send the token to the user's email.
+            // For simplicity, we are just logging it.
+            _logger.LogInformation("Password reset token for email {Email}: {Token}", email, token);
+        }
+
+        public async Task<IdentityResult> ResetPasswordAsync(string email, string token, string newPassword)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                throw new InvalidOperationException("User not found");
+            }
+
+            var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+            if (result.Succeeded)
+            {
+                _logger.LogInformation("Password reset successfully for user ID: {UserId}", user.Id);
+            }
+            else
+            {
+                _logger.LogWarning("Password reset failed for user ID: {UserId}", user.Id);
+            }
+
+            return result;
+        }
+
     }
 }

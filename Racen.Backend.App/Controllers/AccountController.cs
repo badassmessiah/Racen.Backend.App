@@ -14,6 +14,7 @@ using Racen.Backend.App.Services;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Racen.Backend.App.DTOs.AccountRelated;
 
 namespace Racen.Backend.App.Controllers
 {
@@ -148,6 +149,38 @@ namespace Racen.Backend.App.Controllers
                 return NotFound(new { message = "User not found" });
             }
             return Ok(user);
+        }
+
+        [HttpPost("request-password-reset")]
+        public async Task<IActionResult> RequestPasswordReset([FromBody] PasswordResetRequest model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            //testing only
+            var token = await _accountService.GeneratePasswordResetTokenAsync(model.Email);
+
+
+            await _accountService.SendPasswordResetTokenAsync(model.Email);
+            return Ok(new { Status = "Success", Message = "Password reset token sent to email.", Token = token });
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] PasswordReset model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var result = await _accountService.ResetPasswordAsync(model.Email, model.Token, model.NewPassword);
+            if (!result.Succeeded)
+            {
+                return BadRequest(new { Status = "Error", Message = result.Errors.FirstOrDefault()?.Description });
+            }
+
+            return Ok(new { Status = "Success", Message = "Password has been reset successfully." });
         }
     }
 }
